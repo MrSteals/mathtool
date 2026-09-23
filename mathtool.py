@@ -1,29 +1,24 @@
 import sys
 from calc import equation
+from cli import build_parser
 
-REFERENCE_DATA = '''mathtool — решение уравнений вида A*x^2 + B*x + C = 0
+# Разбор аргументов командной строки
+parser = build_parser()
+args = parser.parse_args(sys.argv[1:])
 
-Использование:
-    python mathtool.py ................................ вывод справки
-    python mathtool.py --help ......................... вывод справки
-    python mathtool.py solve .......................... ввод коэффициентов с клавиатуры
-    python mathtool.py solve -a 1 -b -3 -c 2 .......... решение с заданными коэффициентами
-
-Коэффициенты A, B, C — целые числа, по модулю не превышающие 10000.
-'''
-
-# Вывод справки
-if (len(sys.argv) == 1) or sys.argv[1] == '--help':
-    print(REFERENCE_DATA)
+# Если команда не указана — вывод справки
+if args.command is None:
+    parser.print_help()
     sys.exit(0)
 
-# Проверка команды
-if (len(sys.argv) == 2) and sys.argv[1] != 'solve':
-    print('ОШИБКА: команда не найдена', file=sys.stderr)
-    sys.exit(1)
+# Команда solve
+if args.command != 'solve':
+    print('заглушка')
+    sys.exit(0)
 
-# Ввод коэффициентов с клавиатуры
-if (len(sys.argv) == 2) and sys.argv[1] == 'solve':
+# Проверка коэффициентов
+if args.a is None and args.b is None and args.c is None:
+    # Ввод коэффициентов с клавиатуры
     try:
         a = int(input('Введите A: '))
         b = int(input('Введите B: '))
@@ -32,19 +27,11 @@ if (len(sys.argv) == 2) and sys.argv[1] == 'solve':
         print('ОШИБКА: коэффициент не является целым числом', file=sys.stderr)
         sys.exit(1)
 
-# Ввод коэффициентов из консоли
-elif (len(sys.argv) == 8) and sys.argv[1] == 'solve':
-    if (sys.argv[2] != '-a') or (sys.argv[4] != '-b') or (sys.argv[6] != '-c'):
-        print('ОШИБКА: введен неизвестный параметр', file=sys.stderr)
-        sys.exit(1)
-    else:
-        try:
-            a = int(sys.argv[3])
-            b = int(sys.argv[5])
-            c = int(sys.argv[7])
-        except ValueError:
-            print('ОШИБКА: коэффициент не является целым числом', file=sys.stderr)
-            sys.exit(1)
+elif args.a is not None and args.b is not None and args.c is not None:
+    # Коэффициенты заданы в командной строке
+    a = args.a
+    b = args.b
+    c = args.c
 
 else:
     print('ОШИБКА: введен неверный набор параметров', file=sys.stderr)
