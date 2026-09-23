@@ -1,7 +1,6 @@
 import sys
-import math
+from calc import equation
 
-MAX_VALUE = 10_000
 REFERENCE_DATA = '''mathtool — решение уравнений вида A*x^2 + B*x + C = 0
 
 Использование:
@@ -26,9 +25,9 @@ if (len(sys.argv) == 2) and sys.argv[1] != 'solve':
 # Ввод коэффициентов с клавиатуры
 if (len(sys.argv) == 2) and sys.argv[1] == 'solve':
     try:
-        A = int(input('Введите A: '))
-        B = int(input('Введите B: '))
-        C = int(input('Введите C: '))
+        a = int(input('Введите A: '))
+        b = int(input('Введите B: '))
+        c = int(input('Введите C: '))
     except ValueError:
         print('ОШИБКА: коэффициент не является целым числом', file=sys.stderr)
         sys.exit(1)
@@ -40,9 +39,9 @@ elif (len(sys.argv) == 8) and sys.argv[1] == 'solve':
         sys.exit(1)
     else:
         try:
-            A = int(sys.argv[3])
-            B = int(sys.argv[5])
-            C = int(sys.argv[7])
+            a = int(sys.argv[3])
+            b = int(sys.argv[5])
+            c = int(sys.argv[7])
         except ValueError:
             print('ОШИБКА: коэффициент не является целым числом', file=sys.stderr)
             sys.exit(1)
@@ -51,31 +50,27 @@ else:
     print('ОШИБКА: введен неверный набор параметров', file=sys.stderr)
     sys.exit(1)
 
-# Проверка допустимого диапазона коэффициентов
-if (abs(A) > MAX_VALUE) or (abs(B) > MAX_VALUE) or (abs(C) > MAX_VALUE):
-    print('ОШИБКА: значение вне допустимого диапазона', file=sys.stderr)
+# Решение уравнения с помощью модуля equation
+try:
+    kind, d, roots = equation.solve(a, b, c)
+
+except ValueError as error:
+    print(error, file=sys.stderr)
     sys.exit(1)
 
-# Решение уравнения
-if A != 0:  # квадратное уравнение
+if kind == 'квадратное':
     print('Уравнение квадратное')
-    D = B * B - 4 * A * C
-    print(f'D = {D}')
+    print(f'D = {d}')
 
-    if D > 0:
-        x1 = (-B + math.sqrt(D)) / (2 * A)
-        x2 = (-B - math.sqrt(D)) / (2 * A)
-        print(f'x1 = {x1:.3f}, x2 = {x2:.3f}')
-    elif D == 0:
-        x = -B / (2 * A)
-        print(f'x = {x:.3f}')
+    if len(roots) == 2:
+        print(f'x1 = {roots[0]:.3f}, x2 = {roots[1]:.3f}')
+
+    elif len(roots) == 1:
+        print(f'x = {roots[0]:.3f}')
+
     else:
         print('Действительных корней нет')
 
-elif B != 0:  # линейное уравнение
-    print('Уравнение линейное')
-    x = -C / B
-    print(f'x = {x:.3f}')
 else:
-    print('ОШИБКА: это не уравнение, неизвестное отсутствует', file=sys.stderr)
-    sys.exit(1)
+    print('Уравнение линейное')
+    print(f'x = {roots[0]:.3f}')
