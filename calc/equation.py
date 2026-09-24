@@ -2,15 +2,16 @@ from math import sqrt
 
 MAX_VALUE = 10_000
 
-def check_coefficients(a, b, c):
-    if (abs(a) > MAX_VALUE) or (abs(b) > MAX_VALUE) or (abs(c) > MAX_VALUE):
-        raise ValueError("ОШИБКА: значение вне допустимого диапазона")
+def check_coefficients(coefficients):
+    for name, value in coefficients.items():
+        if abs(value) > MAX_VALUE:
+            raise ValueError(f"ОШИБКА: коэффициент {name} вне допустимого диапазона")
+
+def solve(a, b, c):
+    check_coefficients({"-a": a, "-b": b, "-c": c})
 
     if a == 0 and b == 0:
         raise ValueError("ОШИБКА: это не уравнение, неизвестное отсутствует")
-
-def solve(a, b, c):
-    check_coefficients(a, b, c)
 
     if a != 0:
         d = b * b - 4 * a * c
