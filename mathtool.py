@@ -1,8 +1,10 @@
 import sys
-from calc import equation
+import math
 from cli import build_parser
+from calc import equation
+from calc import stats
 
-def handle_solve():
+def handle_solve(args):
     # Проверка коэффициентов
     if args.a is None and args.b is None and args.c is None:
         # Ввод коэффициентов с клавиатуры
@@ -46,9 +48,79 @@ def handle_solve():
     return 0
 
 
-
+# Получает и проверяет числа для команды stats
 def handle_stats(args):
-    print('заглушка')
+
+    # Выбираем источник данных
+    if args.input is not None:
+        with open(args.input, encoding="utf-8-sig") as handle:
+            values = []
+
+            for line in handle:
+                for word in line.split():
+                    try:
+                        value = float(word)
+                    except ValueError:
+                        raise ValueError(
+                            f"ОШИБКА: {word} не является числом"
+                        )
+
+                    values.append(value)
+    else:
+        values = []
+
+        for line in sys.stdin:
+            for word in line.split():
+                try:
+                    value = float(word)
+                except ValueError:
+                    raise ValueError(
+                        f"ОШИБКА: {word} не является числом"
+                    )
+
+                values.append(value)
+
+    # Проверяем полученный список
+    if len(values) == 0:
+        raise ValueError("ОШИБКА: список чисел пуст")
+
+    if len(values) > 20:
+        raise ValueError("ОШИБКА: чисел больше 20")
+
+    for value in values:
+        if not math.isfinite(value):
+            raise ValueError("ОШИБКА: число должно быть конечным")
+
+        if abs(value) > 10_000:
+            raise ValueError(
+                "ОШИБКА: число вне допустимого диапазона"
+            )
+
+    # Таблица статистических показателей
+    REPORT = [
+        ("Количество", len, "d"),
+        ("Сумма", stats.sum_values, ".3f"),
+        ("Ср. арифм.", stats.mean, ".3f"),
+        ("Сумма кв.", stats.sum_squares, ".3f"),
+        ("Ср. кв.", stats.root_mean_square, ".3f"),
+        ("Дисперсия", stats.variance, ".3f"),
+        ("СКО", stats.standard_deviation_population, ".3f"),
+        ("Станд. откл.", stats.standard_deviation, ".3f"),
+        ("Наименьшее", stats.minimum, ".3f"),
+        ("Наибольшее", stats.maximum, ".3f"),
+        ("Положительных", stats.count_positive, "d"),
+        ("Отрицательных", stats.count_negative, "d"),
+    ]
+
+    # Вывод статистических показателей
+    for label, function, form in REPORT:
+        value = function(values)
+
+        if value is None:
+            print(f"{label}: НЕ СУЩЕСТВУЕТ")
+        else:
+            print(f"{label}: {value:{form}}")
+
     return 0
 
 def handle_series(args):
@@ -64,28 +136,28 @@ def handle_integrate(args):
 def main(args = None):
     # Разбор аргументов командной строки
     parser = build_parser()
-    args = parser.parse_args(sys.argv[1:])
+    args = parser.parse_args(args)
 
     # Если команда не указана — вывод справки
     if args.command is None:
         parser.print_help()
         return 0
 
-        # Таблица обработчиков команд
-        handlers = {
-            'solve': handle_solve,
-            'stats': handle_stats,
-            'series': handle_series,
-            'integrate': handle_integrate,
-        }
+    # Таблица обработчиков команд
+    handlers = {
+        'solve': handle_solve,
+        'stats': handle_stats,
+        'series': handle_series,
+        'integrate': handle_integrate,
+    }
 
-        # Вызов обработчика и обработка ошибок
-        try:
-            return handlers[args.command](args)
+    # Вызов обработчика и обработка ошибок
+    try:
+        return handlers[args.command](args)
 
-        except (ValueError, OSError) as error:
-            print(error, file=sys.stderr)
-            return 1
+    except (ValueError, OSError) as error:
+        print(error, file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
