@@ -3,12 +3,14 @@ from math import sqrt
 MAX_VALUE = 10_000
 
 def check_coefficients(coefficients):
+    """Проверяет допустимый диапазон коэффициентов."""
     for name, value in coefficients.items():
         if abs(value) > MAX_VALUE:
             raise ValueError(f"ОШИБКА: коэффициент {name} вне допустимого диапазона")
 
 def solve(a, b, c):
-    check_coefficients({"-a": a, "-b": b, "-c": c})
+    """Решает линейное или квадратное уравнение."""
+    check_coefficients({"A": a, "B": b, "C": c})
 
     if a == 0 and b == 0:
         raise ValueError("ОШИБКА: это не уравнение, неизвестное отсутствует")

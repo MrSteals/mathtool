@@ -3,8 +3,11 @@ import math
 from cli import build_parser
 from calc import equation
 from calc import stats
+from calc import series
+from calc import integration
 
 def handle_solve(args):
+    """Обрабатывает команду solve."""
     # Проверка коэффициентов
     if args.a is None and args.b is None and args.c is None:
         # Ввод коэффициентов с клавиатуры
@@ -50,7 +53,7 @@ def handle_solve(args):
 
 # Получает и проверяет числа для команды stats
 def handle_stats(args):
-
+    """Обрабатывает команду stats."""
     # Выбираем источник данных
     if args.input is not None:
         with open(args.input, encoding="utf-8-sig") as handle:
@@ -124,16 +127,65 @@ def handle_stats(args):
     return 0
 
 def handle_series(args):
-    print('заглушка')
+    """Обрабатывает команду series."""
+    # Проверяем заданный способ вычисления
+    if args.terms is not None:
+        series.check_terms(args.terms)
+    else:
+        series.check_eps(args.eps)
+
+    # Выбираем формулу ряда
+    term, formula = series.FORMULAS[args.func]
+
+    print(formula)
+
+    # Вычисляем сумму
+    if args.terms is not None:
+        result = series.sum_by_terms(term, args.terms)
+        count = args.terms
+    else:
+        result, count = series.sum_by_eps(term, args.eps)
+
+    # Выводим результат
+    print(f"Слагаемых: {count}")
+    print(f"Сумма ряда: {result:.{series.DIGITS}f}")
+
     return 0
 
 def handle_integrate(args):
-    print('заглушка')
+    """Обрабатывает команду integrate."""
+    # Выбираем функцию
+    function_data = integration.FORMULAS[args.func]
+
+    # Проверяем параметры
+    integration.check_steps(args.steps)
+    integration.check_limits(
+        function_data,
+        args.start,
+        args.end
+    )
+
+    # Получаем функцию и формулу
+    function, formula, _, _, _ = function_data
+
+    print(formula)
+
+    # Вычисляем интеграл
+    result = integration.integrate(
+        function,
+        args.start,
+        args.end,
+        args.steps
+    )
+
+    print(f"Значение интеграла: {result:.4f}")
+
     return 0
 
 
 
-def main(args = None):
+def main(args=None):
+    """Запускает приложение и обрабатывает команду пользователя."""
     # Разбор аргументов командной строки
     parser = build_parser()
     args = parser.parse_args(args)
@@ -162,7 +214,3 @@ def main(args = None):
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
-
-
-
-

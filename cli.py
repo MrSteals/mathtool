@@ -1,6 +1,9 @@
 import argparse
+from calc import series
+from calc import integration
 
 def build_parser():
+    """Создаёт и возвращает парсер командной строки."""
     parser = argparse.ArgumentParser(
         prog='mathtool',
         description=(
@@ -57,6 +60,7 @@ def build_parser():
 
     series_parser.add_argument(
         '--func',
+        choices=sorted(series.FORMULAS),
         required=True,
         help='название вычисляемого числового ряда'
     )
@@ -86,6 +90,7 @@ def build_parser():
 
     integrate_parser.add_argument(
         '--func',
+        choices=sorted(integration.FORMULAS),
         required=True,
         help='название подынтегральной функции'
     )
