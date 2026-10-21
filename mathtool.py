@@ -5,6 +5,15 @@ from calc import equation
 from calc import stats
 from calc import series
 from calc import integration
+from calc import sorting
+from calc.arrays import (
+    MIN_VALUE,
+    MAX_VALUE,
+    MAX_COUNT,
+    read_array,
+    write_array,
+    generate_array,
+)
 
 def handle_solve(args):
     """Обрабатывает команду solve."""
@@ -182,7 +191,87 @@ def handle_integrate(args):
 
     return 0
 
+def handle_fill(args):
+    """Обрабатывает команду fill."""
 
+    # Проверяем количество элементов
+    if not 1 <= args.count <= MAX_COUNT:
+        raise ValueError(
+            "ОШИБКА: количество элементов вне диапазона "
+            f"1..{MAX_COUNT}"
+        )
+
+    # Проверяем минимальную и максимальную границы
+    if not MIN_VALUE <= args.min <= MAX_VALUE:
+        raise ValueError(
+            f"ОШИБКА: минимальное значение должно быть "
+            f"в диапазоне {MIN_VALUE}..{MAX_VALUE}"
+        )
+
+    if not MIN_VALUE <= args.max <= MAX_VALUE:
+        raise ValueError(
+            f"ОШИБКА: максимальное значение должно быть "
+            f"в диапазоне {MIN_VALUE}..{MAX_VALUE}"
+        )
+
+    if args.min > args.max:
+        raise ValueError(
+            "ОШИБКА: минимальное значение больше максимального"
+        )
+
+    # Генерируем массив
+    values = generate_array(
+        args.count,
+        args.min,
+        args.max,
+        args.seed,
+    )
+
+    # Выводим массив или сохраняем в файл
+    if args.output is None:
+        print(" ".join(str(value) for value in values))
+    else:
+        write_array(args.output, values)
+        print(
+            f"Записано элементов: {len(values)} "
+            f"в файл {args.output}"
+        )
+
+    return 0
+
+
+def handle_sort(args):
+    """Обрабатывает команду sort."""
+    # Читаем исходный массив
+    values = read_array(args.input)
+
+    # Выбираем метод сортировки
+    method = sorting.METHODS[args.method]
+
+    # Определяем направление сортировки
+    descending = args.order == "desc"
+
+    # Сортируем массив
+    method(values, descending)
+
+    # Выводим результат или сохраняем его в файл
+    if args.output is None:
+        print(" ".join(str(value) for value in values))
+    else:
+        write_array(args.output, values)
+        print(
+            f"Записано элементов: {len(values)} "
+            f"в файл {args.output}"
+        )
+
+    print("Массив отсортирован.")
+
+    return 0
+
+
+def handle_search(args):
+    """Обрабатывает команду search."""
+    print('Заглушка')
 
 def main(args=None):
     """Запускает приложение и обрабатывает команду пользователя."""
@@ -201,6 +290,9 @@ def main(args=None):
         'stats': handle_stats,
         'series': handle_series,
         'integrate': handle_integrate,
+        'fill': handle_fill,
+        'sort': handle_sort,
+        'search': handle_search,
     }
 
     # Вызов обработчика и обработка ошибок
@@ -210,7 +302,6 @@ def main(args=None):
     except (ValueError, OSError) as error:
         print(error, file=sys.stderr)
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

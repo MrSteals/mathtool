@@ -1,15 +1,17 @@
 import argparse
 from calc import series
 from calc import integration
+from calc import sorting
+from calc.arrays import MIN_VALUE, MAX_VALUE
 
 def build_parser():
     """Создаёт и возвращает парсер командной строки."""
     parser = argparse.ArgumentParser(
         prog='mathtool',
         description=(
-            'Mathtool — консольное приложение для математических вычислений.'
-            'Позволяет решать уравнения, анализировать числовые последовательности,'
-            'вычислять суммы рядов и определенные интегралы.'
+            'Mathtool — консольное приложение для математических вычислений. '
+            'Позволяет решать уравнения, анализировать числовые последовательности, '
+            'вычислять суммы рядов и определенные интегралы. '
         ),
         allow_abbrev=False
     )
@@ -116,6 +118,95 @@ def build_parser():
         type=int,
         required=True,
         help='количество шагов, на которые разбивается интервал интегрирования'
+    )
+
+    # Команда fill — генерация массива случайных чисел
+    fill_parser = subparsers.add_parser(
+        'fill',
+        help='генерация массива случайных чисел',
+        allow_abbrev=False
+    )
+
+    fill_parser.add_argument(
+        '-c', '--count',
+        type=int,
+        required=True,
+        help='количество элементов массива'
+    )
+
+    fill_parser.add_argument(
+        '--min',
+        type=int,
+        default=MIN_VALUE,
+        help='минимальное значение элементов'
+    )
+
+    fill_parser.add_argument(
+        '--max',
+        type=int,
+        default=MAX_VALUE,
+        help='максимальное значение элементов'
+    )
+
+    fill_parser.add_argument(
+        '--seed',
+        type=int,
+        help='начальное значение генератора случайных чисел'
+    )
+
+    fill_parser.add_argument(
+        '-o', '--output',
+        help='файл для сохранения массива'
+    )
+
+    # Команда sort — сортировка массива
+    sort_parser = subparsers.add_parser(
+        'sort',
+        help='сортировка массива',
+        allow_abbrev=False
+    )
+
+    sort_parser.add_argument(
+        '-m', '--method',
+        choices=sorted(sorting.METHODS),
+        required=True,
+        help='метод сортировки'
+    )
+
+    sort_parser.add_argument(
+        '--order',
+        choices=['asc', 'desc'],
+        default='asc',
+        help='направление сортировки'
+    )
+
+    sort_parser.add_argument(
+        '-i', '--input',
+        help='файл с исходным массивом'
+    )
+
+    sort_parser.add_argument(
+        '-o', '--output',
+        help='файл для сохранения результата'
+    )
+
+    # Команда search — поиск элемента в массиве
+    search_parser = subparsers.add_parser(
+        'search',
+        help='поиск элемента в массиве',
+        allow_abbrev=False
+    )
+
+    search_parser.add_argument(
+        '-v', '--value',
+        type=int,
+        required=True,
+        help='искомое значение'
+    )
+
+    search_parser.add_argument(
+        '-i', '--input',
+        help='файл с исходным массивом'
     )
 
     return parser
