@@ -1,3 +1,6 @@
+
+"""Чтение, запись и генерация числовых массивов."""
+
 import random
 import sys
 
@@ -8,11 +11,13 @@ MAX_SEARCH = 1000
 
 
 def read_array(path=None):
-    """Читает массив целых чисел из файла или стандартного ввода."""
+    """Читает и проверяет массив целых чисел из файла или stdin."""
     if path is not None:
+        # Читаем файл целиком в кодировке UTF-8.
         with open(path, encoding="utf-8-sig") as file:
             text = file.read()
     else:
+        # Читаем строки до пустой строки или конца ввода.
         lines = []
         print("Введите числа:", file=sys.stderr)
 
@@ -29,6 +34,7 @@ def read_array(path=None):
 
         text = " ".join(lines)
 
+    # Запятые и пробельные символы служат разделителями.
     text = text.replace(",", " ")
     words = text.split()
 
@@ -44,6 +50,7 @@ def read_array(path=None):
 
         values.append(value)
 
+    # Проверяем количество элементов.
     if not values:
         raise ValueError("ОШИБКА: массив пуст")
 
@@ -52,6 +59,7 @@ def read_array(path=None):
             f"ОШИБКА: количество элементов превышает {MAX_COUNT}"
         )
 
+    # Проверяем диапазон каждого элемента.
     for value in values:
         if not MIN_VALUE <= value <= MAX_VALUE:
             raise ValueError(
@@ -63,13 +71,13 @@ def read_array(path=None):
 
 
 def write_array(path, values):
-    """Записывает массив целых чисел в файл."""
+    """Записывает массив целых чисел в файл одной строкой."""
     with open(path, "w", encoding="utf-8") as file:
         file.write(" ".join(str(x) for x in values) + "\n")
 
 
 def generate_array(count, low=MIN_VALUE, high=MAX_VALUE, seed=None):
-    """Генерирует массив случайных целых чисел."""
+    """Генерирует список случайных целых чисел."""
     random.seed(seed)
 
     values = []
